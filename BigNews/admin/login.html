@@ -95,6 +95,11 @@
           success: function (backData) {
             console.log(backData);
             if (backData.code == 200) {
+
+
+              //登录成功之后,把token 值存入localStorage
+              localStorage.setItem('token', backData.token);
+
               // alert(backData.msg);
               //模态框显示
               $('#myModal').modal();
