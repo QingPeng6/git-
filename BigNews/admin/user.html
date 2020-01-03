@@ -44,11 +44,11 @@
                     <label for="inputPassword3" class="col-sm-2 control-label">用户图标：</label>
                     <div class="col-sm-10">
                         <img src="images/2.jpg" alt="" class="user_pic">
-                        <input style="display: block" name="userPic" type="file" id="exampleInputFile">
+                        <input style="display: none" name="userPic" type="file" id="exampleInputFile">
                         <!-- 给label标签的for属性赋值,值是input标签的id,那这样的话点击label就相当于点击了input -->
                         <br>
                         <label for="exampleInputFile">
-                            <img src="./images/uploads_icon.jpg" style="height: 50px;" alt="">
+                            <img src="./images/baba.png" style="height: 50px;" alt="">
                         </label>
                     </div>
                 </div>
@@ -68,6 +68,108 @@
             </form>
         </div>
     </div>
+
+    <!-- 传入地址js -->
+    <script src="./libs/http.js"></script>
+    <!-- <script src=""></script> -->
+
+    <script>
+        $(function () {
+            //1.ajax发送请求渲染个人页面
+            $.ajax({
+                url: BigNew.user_detail,
+                type: 'get',
+                dataType: 'json',
+                // data: '',
+                success: function (backData) {
+                    console.log(backData);
+
+                    //利用for in循环遍历 
+                    for (let key in backData.data) {
+                        console.log(key);
+
+                        //把input.key每个属性的val值改成backData.data里面的[key]名;
+                        //前面取属性名 后面取属性值
+                        $('input.' + key).val(backData.data[key]);
+
+                    };
+
+                    //给img图片的src路径更改成userPic;
+                    $('img.user_pic').attr('src', backData.data.userPic);
+
+                }
+            });
+
+            //2预览图片
+            //1.给file表单元素注册onchange事件
+            $('#exampleInputFile').change(function () {
+                //1.2 获取用户选择的图片
+                var file = this.files[0];
+                //1.3 将文件转为src路径
+                var url = URL.createObjectURL(file);
+                //1.4 将url路径赋值给img标签的src
+                $('.user_pic').attr('src', url);
+            });
+
+            //3.编辑用户信息
+            $('.btn-edit').on('click', function (e) {
+                //禁用表单默认提交事件
+                e.preventDefault();
+                //创建FormData对象：参数是表单dom对象
+                var fd = new FormData($('.article_form')[0])
+                $.ajax({
+                    url: BigNew.user_edit,
+                    type: 'post',
+                    dataType: 'json',
+                    data: fd,
+                    contentType: false,
+                    processData: false,
+                    success: function (backData) {
+                        console.log(backData);
+
+                        if (backData.code == 200) {
+                            alert(backData.msg);
+                            /* 
+                                               window:            当前页面窗口 user.html
+                                               window.parent:     当前页面父窗口 index.html
+                                               */
+
+                            // window.parent.location.reload();
+                
+                            // parent.window.location.reload();
+                            // window.location.reload();
+                            //刷新父页面
+                            parent.window.location.reload();
+
+                        }
+                    }
+                });
+            });
+        })
+
+
+        //     //(1).实例化ajax对象
+        //     var xhr = new XMLHttpRequest();
+        //     //(2).设置请求方法和地址
+        //     //get请求的数据直接添加在url的后面 格式是 url?key=value
+        //     xhr.open('get', '接口url');
+        //     //(3).发送请求
+        //     xhr.send();
+        //     //(4).注册回调函数
+        //     xhr.onload = function() {
+        //         console.log(xhr.responseText)
+        //     };
+
+        //   $.ajax({
+        //       url:'',
+        //       type:'get',
+        //       dataType:'json',
+        //       data:'',
+        //       success: function(backData){
+
+        //       }
+        //   });
+    </script>
 </body>
 
 </html>
