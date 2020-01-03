@@ -99,124 +99,126 @@
     <script src="./libs/http.js"></script>
 
     <script>
-        //0 渲染页面
+        $(function () {
+            //0 渲染页面
 
-        $.ajax({
-            url: BigNew.category_list,
-            type: 'get',
-            dataType: 'json',
-            // data: '',
-            success: function (backData) {
-                console.log(backData);
-                //通过模板引擎渲染页面
-                $('.table>tbody').html(template('txt', backData))
-
-
-            }
-        });
-        //1模态框的复用	show 方法调用之后立即触发该事件。如果是通过点击某个作为触发器的元素，则此元素可以通过事件的 relatedTarget 属性进行访问。
-        $('#myModal').on('show.bs.modal', function (e) {
-
-            console.log(e.relatedTarget.text);
-            //如果点击源是新增按钮,那就把里面的文字设置为新增
-            if ($(e.relatedTarget).text() == '新增') {
-                $('.btn-primary').text('新增');
-            } else {
-                //如果点击源是编辑按钮,那就把里面的文字设置为编辑
-                $('.btn-primary').text('编辑');
-                //把模态框里面的文字也显示成当前需要删除那一行的信息
-                /*
-                1.e.relatedTarget是当前点击的按钮,他的parent是td,prev是的他父亲的上一个兄弟元素,取他里面的文本值放到模态框里面
-                */
-                $('#recipient-name').val($(e.relatedTarget).parent().prev().prev().text());
-                $('#message-text').val($(e.relatedTarget).parent().prev().text());
-                //2.将当前点击编辑按钮的 data-id 赋值给确认按钮的data-id
-                $('.btn-primary').attr('data-id', $(e.relatedTarget).attr('data-id'));
-
-            }
+            $.ajax({
+                url: BigNew.category_list,
+                type: 'get',
+                dataType: 'json',
+                // data: '',
+                success: function (backData) {
+                    console.log(backData);
+                    //通过模板引擎渲染页面
+                    $('.table>tbody').html(template('txt', backData))
 
 
-        });
+                }
+            });
+            //1模态框的复用	show 方法调用之后立即触发该事件。如果是通过点击某个作为触发器的元素，则此元素可以通过事件的 relatedTarget 属性进行访问。
+            $('#myModal').on('show.bs.modal', function (e) {
 
-        //2.点击取消清除模态框的文字
-        $('.btn-default').click(function () {
-            //重置表单:dom原生表单的属性.reset();
-            $('.modal-body>form')[0].reset();
-        });
+                console.log(e.relatedTarget.text);
+                //如果点击源是新增按钮,那就把里面的文字设置为新增
+                if ($(e.relatedTarget).text() == '新增') {
+                    $('.btn-primary').text('新增');
+                } else {
+                    //如果点击源是编辑按钮,那就把里面的文字设置为编辑
+                    $('.btn-primary').text('编辑');
+                    //把模态框里面的文字也显示成当前需要删除那一行的信息
+                    /*
+                    1.e.relatedTarget是当前点击的按钮,他的parent是td,prev是的他父亲的上一个兄弟元素,取他里面的文本值放到模态框里面
+                    */
+                    $('#recipient-name').val($(e.relatedTarget).parent().prev().prev().text());
+                    $('#message-text').val($(e.relatedTarget).parent().prev().text());
+                    //2.将当前点击编辑按钮的 data-id 赋值给确认按钮的data-id
+                    $('.btn-primary').attr('data-id', $(e.relatedTarget).attr('data-id'));
 
-        //3.点击模态框的按钮触发不同的ajax事件
-        $('.btn-primary').click(function () {
-            //如果当前点击的是新增按钮,则发送新增的ajax请求
-            if ($(this).text() == '新增') {
-                //新增
-                $.ajax({
-                    url: BigNew.category_add,
-                    type: 'post',
-                    dataType: 'json',
-                    data: {
-                        //把两个表单里面的val值作为参数传
-                        name: $('#recipient-name').val(),
-                        slug: $('#message-text').val()
-                    },
-                    success: function (backData) {
-                        console.log(backData);
-                        //如果返回201就是创建成功就刷新页面
-                        if (backData.code == 201) {
-                            alert(backData.msg);
-                            window.location.reload();
+                }
+
+
+            });
+
+            //2.点击取消清除模态框的文字
+            $('.btn-default').click(function () {
+                //重置表单:dom原生表单的属性.reset();
+                $('.modal-body>form')[0].reset();
+            });
+
+            //3.点击模态框的按钮触发不同的ajax事件
+            $('.btn-primary').click(function () {
+                //如果当前点击的是新增按钮,则发送新增的ajax请求
+                if ($(this).text() == '新增') {
+                    //新增
+                    $.ajax({
+                        url: BigNew.category_add,
+                        type: 'post',
+                        dataType: 'json',
+                        data: {
+                            //把两个表单里面的val值作为参数传
+                            name: $('#recipient-name').val(),
+                            slug: $('#message-text').val()
+                        },
+                        success: function (backData) {
+                            console.log(backData);
+                            //如果返回201就是创建成功就刷新页面
+                            if (backData.code == 201) {
+                                alert(backData.msg);
+                                window.location.reload();
+                            }
                         }
-                    }
-                });
-                //不是新增按钮,那么点击的就是编辑按钮
-            } else {
-                //编辑ajax事件
-                $.ajax({
-                    url: BigNew.category_edit,
-                    type: 'post',
-                    dataType: 'json',
-                    data: {
-                        //id值为当前点击编辑按钮的data-id值
-                        id: $(this).attr('data-id'),
-                        name: $('#recipient-name').val(),
-                        slug: $('#message-text').val()
-                    },
-                    success: function (backData) {
-                        console.log(backData);
-                        if (backData.code == 200) {
-                            alert(backData.msg);
-                            window.location.reload();
+                    });
+                    //不是新增按钮,那么点击的就是编辑按钮
+                } else {
+                    //编辑ajax事件
+                    $.ajax({
+                        url: BigNew.category_edit,
+                        type: 'post',
+                        dataType: 'json',
+                        data: {
+                            //id值为当前点击编辑按钮的data-id值
+                            id: $(this).attr('data-id'),
+                            name: $('#recipient-name').val(),
+                            slug: $('#message-text').val()
+                        },
+                        success: function (backData) {
+                            console.log(backData);
+                            if (backData.code == 200) {
+                                alert(backData.msg);
+                                window.location.reload();
+                            }
+
                         }
+                    });
+                }
+            });
 
-                    }
-                });
-            }
-        });
+            //4.删除功能
+            $('.table>tbody').on('click', '.btn-delete', function () {
+                if (confirm('确定删除吗') == true) {
+                    //发送删除ajax请求
+                    $.ajax({
+                        url: BigNew.category_delete,
+                        type: 'post',
+                        dataType: 'json',
+                        data: {
+                            id: $(this).attr('data-id')
+                        },
+                        success: function (backData) {
+                            console.log(backData);
+                            //如果返回的是204代表删除成功
+                            if (backData.code == 204) {
+                                alert(backData.msg);
+                                //刷新当前页面
+                                window.location.reload();
+                            }
 
-        //4.删除功能
-        $('.table>tbody').on('click', '.btn-delete', function () {
-            if (confirm('确定删除吗') == true) {
-                //发送删除ajax请求
-                $.ajax({
-                    url: BigNew.category_delete,
-                    type: 'post',
-                    dataType: 'json',
-                    data: {
-                        id: $(this).attr('data-id')
-                    },
-                    success: function (backData) {
-                        console.log(backData);
-                        //如果返回的是204代表删除成功
-                        if (backData.code == 204) {
-                            alert(backData.msg);
-                            //刷新当前页面
-                            window.location.reload();
                         }
-
-                    }
-                });
-            } else {
-                return;
-            };
+                    });
+                } else {
+                    return;
+                };
+            });
         })
     </script>
 
