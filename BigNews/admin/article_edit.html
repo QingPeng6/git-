@@ -67,6 +67,27 @@
             </form>
         </div>
     </div>
+    <script src="./libs/http.js"></script>
+    <script>
+        var id = window.location.search.split('=')[1];
+        console.log(id);
+
+        // $.ajax({
+        //     url: BigNew.article_search,
+        //     type: 'get',
+        //     dataType: 'json',
+        //     data: {
+        //         id: id
+        //     },
+        //     success: function (backData) {
+        //         console.log(backData);
+        //         for (var key in backData.data) {
+        //             $('.' + key).val(backData.data[key])
+        //         }
+
+        //     }
+        // });
+    </script>
 </body>
 
 </html>
