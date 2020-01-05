@@ -12,6 +12,9 @@
   <link rel="stylesheet" href="css/main.css">
   <script src="./libs/jquery-1.12.4.min.js"></script>
   <script src="./libs/template-web.js"></script>
+
+  <!-- 导入分页插件 -->
+  <script src="./libs/jquery.twbsPagination.js"></script>
 </head>
 
 <body>
@@ -142,7 +145,7 @@
         </tbody>
       </table>
       <div class="row text-center">
-        <ul class="pagination pagination-sm">
+        <!-- <ul class="pagination pagination-sm">
           <li class="page-item first disabled"><a href="#" class="page-link">首页</a></li>
           <li class="page-item prev disabled"><a href="#" class="page-link">上一页</a></li>
           <li class="page-item active"><a href="#" class="page-link">1</a></li>
@@ -155,11 +158,84 @@
           <li class="page-item next"><a href="#" class="page-link">下一页</a></li>
           <li class="page-item last"><a href="#" class="page-link">尾页</a></li>
         </ul>
+        <ul id="pagination" class="pagination-sm"></ul> -->
+        <!-- 页面分页 -->
         <ul id="pagination" class="pagination-sm"></ul>
       </div>
 
     </div>
   </div>
+  <script id="list" type="text/html">
+    {{each data.data v}}
+    <tr>
+      <td>{{v.author}}</td>
+      <td>{{v.content}}</td>
+      <td>{{v.title}}</td>
+      <td>{{v.date}}  &nbsp;&nbsp;&nbsp;{{v.time}}</td>
+      <td>{{v.state}}</td>
+      <td class="text-center">
+        <a href="javascript:void(0);;" class="btn btn-warning btn-xs">拒绝</a>
+        <a href="javascript:void(0);;" class="btn btn-danger btn-xs">删除</a>
+      </td>
+    </tr>
+    {{/each}}
+  </script>
+  <script src="./libs/http.js"></script>
+
+  <script>
+    //入口函数
+    $(function () {
+      //进入页面先请求第一页
+      getPage(1);
+
+      //请求文章评论搜索
+      function getPage(currentPage) {
+        $.ajax({
+          url: BigNew.comment_list,
+          type: 'get',
+          dataType: 'json',
+          data: {
+            page: currentPage,
+            perpage: 10
+          },
+          success: function (backData) {
+            console.log(backData);
+            //渲染页面
+            $('.table>tbody').html(template('list', backData));
+            //使用分页插件
+            loadPage(backData.data.totalPage, currentPage);
+          }
+        });
+      };
+
+      //分页插件使用
+      function loadPage(totalPage, currentPage) {
+
+        //(1)先销毁上一次的分页数据 
+        $('#pagination').twbsPagination('destroy');
+        //2.再加载分页插件
+        $('#pagination').twbsPagination({
+          totalPages: totalPage, //总页数
+          visiblePages: 8, //可见页数
+          startPage: currentPage, //起始页
+          first: '首页',
+          prev: '上一页',
+          next: '下一页',
+          last: '尾页',
+          onPageClick: function (event, page) {
+
+            $('#page-content').text('Page' + page);
+            // console.log($('#page-content'));
+            //必须要有一个判断条件 不然递归无限次循环执行
+            //当需要显示的页码不等于当前页码时 才执行*********
+            if (currentPage != page) {
+              getPage(page);
+            }
+          }
+        });
+      }
+    })
+  </script>
 </body>
 
 </html>

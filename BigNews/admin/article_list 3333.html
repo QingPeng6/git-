@@ -128,14 +128,46 @@
             //因为是表单按钮,所以要阻止默认跳转
             e.preventDefault();
             //发送ajax渲染页面
-            getArt(1);
+            // getArt(1);
+            $.ajax({
+                url: BigNew.article_query,
+                type: 'get',
+                dataType: 'json',
+                data: {
+                    /* 取分类框中的值 */
+                    type: $('#selCategory').val(),
+                    state: $('#selStatus').val(),
+                    page: 1,
+                    perpage: 10
+                },
+                success: function (backData) {
+                    //页面内容渲染
+                    $('.table>tbody').html(template('neirong', backData.data));
+                    console.log(backData);
+                    //(1)先销毁上一次的分页数据
+                    $('#pagination').twbsPagination('destroy');
+                    //加载分页插件
+                    $('#pagination').twbsPagination({
+
+                        totalPages: backData.data.totalPage, //总页数
+                        visiblePages: 8, //可见页数
+                        startPage: 1, //起始页
+                        first: '首页',
+                        prev: '上一页',
+                        next: '下一页',
+                        last: '尾页',
+                        onPageClick: function (event, page) {
+                            $('#page-content').text('Page ' + page);
+
+                            getPage(page);
+                        }
+                    });
+                }
+            });
         });
 
 
-
-
-        //点击页码触发点击事件
-        function getArt(currentPage) {
+        function getPage(currentPage) {
             $.ajax({
                 url: BigNew.article_query,
                 type: 'get',
@@ -148,40 +180,62 @@
                     perpage: 10
                 },
                 success: function (backData) {
+                    //页面内容渲染
                     $('.table>tbody').html(template('neirong', backData.data));
-                    //加载分页插件
-                    loadPage(backData.data.totalPage, currentPage);
-                }
-
-            });
-        }
-
-
-
-        //响应分页插件
-        function loadPage(totalPage, startPages) {
-
-            //(1)先销毁上一次的分页数据
-            $('#pagination').twbsPagination('destroy');
-            //2.再加载分页插件
-            $('#pagination').twbsPagination({
-                totalPages: totalPage, //总页数
-                visiblePages: 8, //可见页数
-                startPage: startPages, //起始页
-                first: '首页',
-                prev: '上一页',
-                next: '下一页',
-                last: '尾页',
-                onPageClick: function (event, page) {
-                    //渲染分页框
-                    $('#page-content').text('Page' + page);
-
-                    if (page != startPages) {
-                        getArt(page);
-                    };
                 }
             });
         }
+
+      
+
+        // //点击页码触发点击事件
+        // function getArt(currentPage) {
+        //     $.ajax({
+        //         url: BigNew.article_query,
+        //         type: 'get',
+        //         dataType: 'json',
+        //         data: {
+        //             /* 取分类框中的值 */
+        //             type: $('#selCategory').val(),
+        //             state: $('#selStatus').val(),
+        //             page: currentPage,
+        //             perpage: 10
+        //         },
+        //         success: function (backData) {
+        //             $('.table>tbody').html(template('neirong', backData.data));
+        //             //加载分页插件
+        //             loadPage(backData.data.totalPage, currentPage);
+        //         }
+
+        //     });
+        // }
+
+
+
+        // //响应分页插件
+        // function loadPage(totalPage, startPages) {
+
+        //     //(1)先销毁上一次的分页数据
+        //     $('#pagination').twbsPagination('destroy');
+        //     //2.再加载分页插件
+        //     $('#pagination').twbsPagination({
+        //         totalPages: totalPage, //总页数
+        //         visiblePages: 8, //可见页数
+        //         startPage: startPages, //起始页
+        //         first: '首页',
+        //         prev: '上一页',
+        //         next: '下一页',
+        //         last: '尾页',
+        //         onPageClick: function (event, page) {
+        //             //渲染分页框
+        //             $('#page-content').text('Page' + page);
+
+        //             if (page != startPages) {
+        //                 getArt(page);
+        //             };
+        //         }
+        //     });
+        // }
 
 
 
@@ -213,6 +267,9 @@
             });
         })
     })
+    var res =  (function(n){return n == 1?1:n* arguments.callee(n-1)})(5);
+        console.log(res);
+        
 </script>
 
 </html>

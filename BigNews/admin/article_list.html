@@ -13,8 +13,8 @@
     <script src="./libs/jquery-1.12.4.min.js"></script>
     <!-- 引入模板引擎js文件 -->
     <script src="./libs/template-web.js"></script>
-    <!-- 导入分页插件 -->
-    <script src="./libs/jquery.twbsPagination.js"></script>
+   <!-- 导入分页插件 -->
+    <script src="./libs/jquery.twbsPagination.js"></script> 
 </head>
 
 <body>
@@ -38,7 +38,7 @@
                             <option value="草稿">草稿</option>
                             <option value="已发布">已发布</option>
                         </select>
-                        <button id="btnSearch" class="btn btn-default btn-sm">筛选</button>
+                        <button id="btnSearch" class="btn btn-default btn-sm btn-del">筛选</button>
                     </form>
                 </div>
                 <div class="col-xs-6">
@@ -123,58 +123,22 @@
             }
         });
 
+
         //2.给筛选按钮注册点击事件
-        $('.btn-sm').click(function (e) {
+        $('.btn-del').click(function (e) {
             //因为是表单按钮,所以要阻止默认跳转
             e.preventDefault();
-            //发送ajax渲染页面
-            $.ajax({
-                url: BigNew.article_query,
-                type: 'get',
-                dataType: 'json',
-                data: {
-                    /* 取分类框中的值 */
-                    type: $('#selCategory').val(),
-                    state: $('#selStatus').val(),
-                    page: 1,
-                    perpage: 10
-                },
-                success: function (backData) {
-                    console.log(backData);
-                    if (backData.code == 200) {
-                        //如果获取成功则渲染页面
-                        $('.table>tbody').html(template('neirong', backData.data));
-                        console.log(backData.data.totalPage);
+            //发送ajax渲染页面  把1传进去渲染第一页
+            getArt(1, true);
 
-                        //(1)先销毁上一次的分页数据
-                        $('#pagination').twbsPagination('destroy');
-                        //2.再加载分页插件
-                        $('#pagination').twbsPagination({
-                            totalPages: backData.data.totalPage, //总页数
-                            visiblePages: 8, //可见页数
-                            startPage: 1, //起始页
-                            first: '首页',
-                            prev: '上一页',
-                            next: '下一页',
-                            last: '尾页',
-                            onPageClick: function (event, page) {
-                                //渲染分页框
-                                $('#page-content').text('Page' + page);
-
-                                getArt(page);
-                            }
-                        });
-                    }
-
-                }
-            });
+          
         });
 
 
 
-        
+
         //点击页码触发点击事件
-        function getArt(currentPage) {
+        function getArt(currentPage, flag) {
             $.ajax({
                 url: BigNew.article_query,
                 type: 'get',
@@ -188,12 +152,44 @@
                 },
                 success: function (backData) {
                     $('.table>tbody').html(template('neirong', backData.data));
+
+                    //把 backData.data里的totalPage查询结果总页数  跟   需要显示的第几页currentPage传进去
+                    //第二种方法 设置一个布尔值true,第一次点击时传进去,后面不传参,所以只能执行一次代码   **********
+                    if (flag) {
+                        loadPage(backData.data.totalPage, currentPage)
+                    }
+
                 }
 
             });
         }
 
+        //分页插件使用
+        function loadPage(totalPage, currentPage) {
 
+            //(1)先销毁上一次的分页数据 
+            $('#pagination').twbsPagination('destroy');
+            //2.再加载分页插件
+            $('#pagination').twbsPagination({
+                totalPages: totalPage, //总页数
+                visiblePages: 8, //可见页数
+                startPage: currentPage, //起始页
+                first: '首页',
+                prev: '上一页',
+                next: '下一页',
+                last: '尾页',
+                onPageClick: function (event, page) {
+
+                    $('#page-content').text('Page' + page);
+                    // console.log($('#page-content'));
+                    //必须要有一个判断条件 不然递归无限次循环执行
+                    //当需要显示的页码不等于当前页码时 才执行*********
+                    // if (currentPage != page) { 
+                    getArt(page);
+                    // }
+                }
+            });
+        }
 
 
 
