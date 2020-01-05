@@ -167,17 +167,50 @@
   </div>
   <script id="list" type="text/html">
     {{each data.data v}}
+    {{if v.state == '待审核'}}
+    <tr class="danger">
+      <td>{{v.author}}</td>
+      <td>{{v.content}}</td>
+      <td>{{v.title}}</td>
+      <!-- <td>v.date</td> -->
+      <td>{{v.date}} &nbsp;&nbsp;&nbsp;{{v.time}}</td>
+      <td>{{v.state}}</td>
+      <td class="text-center">
+        <a href="javascript:void(0);;" data-id="{{v.id}}" class="btn btn-info btn-xs">批准</a>
+        <a href="javascript:void(0);;" data-id="{{v.id}}" class="btn btn-danger btn-xs">删除</a>
+      </td>
+    </tr>
+    {{else if v.state == '已通过'}}
     <tr>
       <td>{{v.author}}</td>
       <td>{{v.content}}</td>
       <td>{{v.title}}</td>
-      <td>{{v.date}}  &nbsp;&nbsp;&nbsp;{{v.time}}</td>
+      <!-- <td>v.date</td> -->
+      <td>{{v.date}} &nbsp;&nbsp;&nbsp;{{v.time}}</td>
       <td>{{v.state}}</td>
       <td class="text-center">
-        <a href="javascript:void(0);;" class="btn btn-warning btn-xs">拒绝</a>
-        <a href="javascript:void(0);;" class="btn btn-danger btn-xs">删除</a>
+
+        <a href="javascript:void(0);;" data-id="{{v.id}}" class="btn btn-warning btn-xs">拒绝</a>
+        <a href="javascript:void(0);;" data-id="{{v.id}}" class="btn btn-danger btn-xs">删除</a>
       </td>
     </tr>
+    {{else}}
+    <tr>
+      <td>{{v.author}}</td>
+      <td>{{v.content}}</td>
+      <td>{{v.title}}</td>
+      <!-- <td>v.date</td> -->
+      <td>{{v.date}} &nbsp;&nbsp;&nbsp;{{v.time}}</td>
+      <td>{{v.state}}</td>
+      <td class="text-center">
+        <a href="javascript:void(0);;" data-id="{{v.id}}" class="btn btn-danger btn-xs">删除</a>
+      </td>
+    </tr>
+    {{/if}}
+
+    <!-- <a href="javascript:void(0);;" class="btn btn-warning btn-xs">拒绝</a>
+        <a href="javascript:void(0);;" class="btn btn-danger btn-xs">删除</a> -->
+
     {{/each}}
   </script>
   <script src="./libs/http.js"></script>
@@ -234,6 +267,72 @@
           }
         });
       }
+
+      //页面按钮点击事件
+      $('.table>tbody').on('click', '.btn', function () {
+        // alert('123');
+        //获取当前点击的按钮文字,进行判断执行
+        console.log($(this).text());
+        if ($(this).text() == '批准') {
+          //批准的接口
+          $.ajax({
+            url: BigNew.comment_pass,
+            type: 'post',
+            dataType: 'json',
+            data: {
+              //获取之前存储在按钮中的data-id
+              id: $(this).attr('data-id')
+            },
+            success: function (backData) {
+              console.log(backData);
+              if (backData.code == 200) {
+                alert(backData.msg);
+                window.location.reload();
+              }
+
+            }
+          });
+        } else if ($(this).text() == '拒绝') {
+          //评论审核不通过
+          $.ajax({
+            url: BigNew.comment_reject,
+            type: 'post',
+            dataType: 'json',
+            data: {
+              //获取之前存储在按钮中的data-id
+              id: $(this).attr('data-id')
+            },
+            success: function (backData) {
+              console.log(backData);
+              if (backData.code == 200) {
+                alert(backData.msg);
+                window.location.reload();
+              }
+
+            }
+          });
+        } else {
+          //评论删除
+          $.ajax({
+            url: BigNew.comment_delete,
+            type: 'post',
+            dataType: 'json',
+            data: {
+              //获取之前存储在按钮中的data-id
+              id: $(this).attr('data-id')
+            },
+            success: function (backData) {
+              console.log(backData);
+              if (backData.code == 200) {
+                alert(backData.msg);
+                window.location.reload();
+              }
+
+            }
+          });
+        }
+      })
+
     })
   </script>
 </body>
