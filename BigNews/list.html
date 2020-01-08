@@ -6,17 +6,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>大事件-列表页</title>
+    <link rel="stylesheet" href="./js/bootstrap.min.css">
     <link rel="stylesheet" type="text/css" href="css/reset.css">
     <link rel="stylesheet" href="css/font-awesome.min.css">
     <link rel="stylesheet" type="text/css" href="css/jquery.pagination.css">
     <link rel="stylesheet" type="text/css" href="css/main.css">
     <script type="text/javascript" src="js/jquery-1.12.4.min.js"></script>
-    <script type="text/javascript" src="js/jquery.pagination.min.js"></script>
+    <script type="text/javascript" src="./js/jquery.twbsPagination.js"></script>
+    <script src="./js/bootstrap.min.js"></script>
 </head>
 
 <body>
     <div class="header">
-        <a href="#" class="logo fl"><img src="images/logo.png" alt="logo"></a>
+        <a href="./index.html" class="logo fl"><img src="images/logo.png" alt="logo"></a>
         <div class="search_form fl">
             <input type="text" class="search_txt" placeholder="黑洞照片">
             <button class="search_btn"><i class="fa fa-search"></i></button>
@@ -60,7 +62,7 @@
         <div class="left_con setfr">
 
             <div class="list_title">
-                <h3>科 技</h3>
+                <h3 class="txt">科 技</h3>
             </div>
 
             <div class="common_news_list">
@@ -136,17 +138,6 @@
             </div>
 
             <div id="pagination" class="page"></div>
-            <script>
-                $(function () {
-                    $("#pagination").pagination({
-                        currentPage: 2,
-                        totalPage: 8,
-                        callback: function (current) {
-                            alert('ok!');
-                        }
-                    });
-                });
-            </script>
 
         </div>
         <div class="right_con setfl">
@@ -211,7 +202,24 @@
             </div>
         </div>
     </div>
-
+    <div class="row text-center">
+        <!-- <ul class="pagination pagination-sm">
+              <li class="page-item first disabled"><a href="#" class="page-link">首页</a></li>
+              <li class="page-item prev disabled"><a href="#" class="page-link">上一页</a></li>
+              <li class="page-item active"><a href="#" class="page-link">1</a></li>
+              <li class="page-item"><a href="#" class="page-link">2</a></li>
+              <li class="page-item"><a href="#" class="page-link">3</a></li>
+              <li class="page-item"><a href="#" class="page-link">4</a></li>
+              <li class="page-item"><a href="#" class="page-link">5</a></li>
+              <li class="page-item"><a href="#" class="page-link">6</a></li>
+              <li class="page-item"><a href="#" class="page-link">7</a></li>
+              <li class="page-item next"><a href="#" class="page-link">下一页</a></li>
+              <li class="page-item last"><a href="#" class="page-link">尾页</a></li>
+            </ul>
+            <ul id="pagination" class="pagination-sm"></ul> -->
+        <!-- 页面分页 -->
+        <ul id="pagination" class="pagination-sm"></ul>
+    </div>
     <div class="footer clearfix">
         <div class="foot_link">
             <a href="#">关于我们</a>
@@ -225,8 +233,153 @@
         <p>CopyRight © 2019 深圳大事件信息技术股份有限公司 All Rights Reserved</p>
         <p>电话：0755-****888 粤ICP备*******8号</p>
     </div>
-    <!-- 导包template -->
+    <!-- 文章分类模板 -->
+    <script id="classify" type="text/html">
+        {{each data v}}
+        <li><a href="./list.html?id={{v.id}}" data-id="{{v.id}}">{{v.name}}</a></li>
+        {{/each}}
+    </script>
+    <!-- 资讯模板 -->
+    <script id="news" type="text/html">
+        <div class="list_title">
+            <h3>科 技</h3>
+        </div>
+        {{each data.data v}}
+        <div class="common_news_list">
+            <a href="./article.html?id={{v.id}}" class="list_pic" data-id="{{v.id}}"><img src="{{v.cover}}" alt=""></a>
+            <h4><a href="#">{{v.title}} </a></h4>
+            <p>{{v.content}}
+            </p>
+            <div class="new_info">
+                <span>标签：{{v.category}}&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;<i class="fa fa-eye"></i>&nbsp;阅读(
+                    {{v.read}}
+                    )&nbsp;&nbsp;&nbsp;<i class="fa fa-commenting"></i>&nbsp;评论( {{v.comments}} )</span>
+                <b>发布于 {{v.date}}</b>
+            </div>
+        </div>
+        {{/each}}
+    </script>
+    <!-- <script src="./js/wangEditor.js"></script> -->
+    <script src="./js/http.js"></script>
     <script src="./js/template-web.js"></script>
+    <!-- <script src="./js/jquery-1.12.4.min.js"></script> -->
+    <script>
+        //入口函数
+        $(function () {
+            //接收其他页面传来的name值 用来做查询判断条件
+            var name = localStorage.getItem('name');
+            console.log(name);
+            //把input里面的  内容改成val  如果没有val就是空
+            $('.search_txt').val(name);
+            //移除里面的name属性
+            localStorage.removeItem('name');
+
+
+            var id = window.location.search.split('=')[1];
+            console.log(id);
+
+            //1.获取文章类型的接口
+            $.ajax({
+                url: BigNew.index_category,
+                type: 'get',
+                dataType: 'json',
+                // data:'',
+                success: function (backData) {
+                    console.log(backData);
+                    //通过模板引擎渲染
+                    $('.level_two').html(template('classify', backData));
+                    $('.left_menu').html(template('classify', backData))
+                    // $('#h3').text(backData)
+
+                }
+            });
+            //2.获取http地址上的id 根据id来渲染页面
+            //文章搜索
+            // getPage(1);
+            // console.log($('.search_txt').val());
+            // var key = $('.search_txt').val();
+
+
+
+
+
+            //3.根据搜索框来渲染页面
+            $('.search_btn').click(function () {
+
+
+                // console.log(name);
+
+                // if (name == null) {
+                //     var abc = $('.search_txt').val();
+                //     localStorage.setItem('name', abc);
+                //     getPage(1);
+                //     return;
+                // }
+
+                getPage(1);
+
+            })
+            
+
+
+            $('.search_btn').click()
+
+            // $('.search_txt').val();
+            // $('.search_btn').click();
+
+            function getPage(currentPage) {
+                $.ajax({
+                    url: BigNew.index_search,
+                    type: 'get',
+                    dataType: 'json',
+                    data: {
+                        key: $('.search_txt').val(),
+                        type: id,
+                        page: currentPage
+                    },
+                    success: function (backData) {
+                        console.log(backData);
+
+                        $('.left_con').html(template('news', backData));
+                        // $('.list_title>h3').text(backData.data.data[0].category);
+                        // console.log(backData.data.data[0].category);
+
+                        loadPage(backData.data.totalCount, currentPage);
+
+                    }
+                });
+            }
+
+
+            function loadPage(totalPage, currentPage) {
+
+                // //(1)先销毁上一次的分页数据 
+                $('#pagination').twbsPagination('destroy');
+                //2.再加载分页插件
+                $('#pagination').twbsPagination({
+                    totalPages: totalPage, //总页数
+                    visiblePages: 8, //可见页数
+                    startPage: currentPage, //起始页
+                    first: '首页',
+                    prev: '上一页',
+                    next: '下一页',
+                    last: '尾页',
+                    onPageClick: function (event, page) {
+
+                        $('#page-content').text('Page' + page);
+                        // console.log($('#page-content'));
+                        //必须要有一个判断条件 不然递归无限次循环执行
+                        //当需要显示的页码不等于当前页码时 才执行*********
+                        if (currentPage != page) {
+                            getPage(page);
+                        }
+                        // getPage(page);
+                    }
+                });
+            }
+
+        })
+    </script>
 </body>
 
 </html>

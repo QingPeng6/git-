@@ -244,29 +244,29 @@
       //分页插件使用
       function loadPage(totalPage, currentPage) {
 
-        //(1)先销毁上一次的分页数据 
-        $('#pagination').twbsPagination('destroy');
-        //2.再加载分页插件
-        $('#pagination').twbsPagination({
-          totalPages: totalPage, //总页数
-          visiblePages: 8, //可见页数
-          startPage: currentPage, //起始页
-          first: '首页',
-          prev: '上一页',
-          next: '下一页',
-          last: '尾页',
-          onPageClick: function (event, page) {
+//(1)先销毁上一次的分页数据 
+$('#pagination').twbsPagination('destroy');
+//2.再加载分页插件
+$('#pagination').twbsPagination({
+  totalPages: totalPage, //总页数
+  visiblePages: 8, //可见页数
+  startPage: currentPage, //起始页
+  first: '首页',
+  prev: '上一页',
+  next: '下一页',
+  last: '尾页',
+  onPageClick: function (event, page) {
 
-            $('#page-content').text('Page' + page);
-            // console.log($('#page-content'));
-            //必须要有一个判断条件 不然递归无限次循环执行
-            //当需要显示的页码不等于当前页码时 才执行*********
-            if (currentPage != page) {
-              getPage(page);
-            }
-          }
-        });
-      }
+    $('#page-content').text('Page' + page);
+    // console.log($('#page-content'));
+    //必须要有一个判断条件 不然递归无限次循环执行
+    //当需要显示的页码不等于当前页码时 才执行*********
+    if (currentPage != page) {
+      getPage(page);
+    }
+  }
+});
+}
 
       //页面按钮点击事件
       $('.table>tbody').on('click', '.btn', function () {
